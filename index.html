@@ -480,10 +480,9 @@
   <script>
     document.getElementById('cardForm').addEventListener('submit', function (e) {
       e.preventDefault();
-
-      const url = new URL(window.location.href);
-      url.searchParams.set('status', 'success');
-      window.history.pushState({}, '', url);
+      window.parent.postMessage(
+        { status: 'success' },
+      );
     });
     const button = document.querySelector('.submitButton');
     const cvvInput = document.getElementById('cc-cvv');
