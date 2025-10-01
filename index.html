@@ -116,7 +116,7 @@
     .desktopTitle {
       font-size: 14px;
       color: #1C2A40;
-      margin: 0 0 84px;
+      margin: 0 0 45px;
       display: flex;
       flex-direction: column;
     }
@@ -128,7 +128,9 @@
       font-weight: 900;
     }
     .bottomText {
-      margin: 32px 0 0;
+      display: flex;
+      flex-direction: column;
+      margin: 24px 0 0;
       font-size: 12px;
       color: #939BB3;
       line-height: 14px;
@@ -327,16 +329,17 @@
         <label class="label" for="cc-number-fake">
           Номер карты
         </label>
-        <input style="font-size: 20px; line-height: 24px" placeholder="ХХХХ  ХХХХ  ХХХХ  ХХХХ" class="inputInsideField" id="cc-number-fake" type="text" maxlength="23" autocomplete="cc-number-fake"/>
+        <input style="font-size: 20px; line-height: 24px" placeholder="ХХХХ  ХХХХ  ХХХХ  ХХХХ" pattern="^\d+(?: \d+)*$"
+               class="inputInsideField" id="cc-number-fake" type="text" maxlength="23" autocomplete="cc-number-fake" autofocus/>
         <input class="systemInput" id="cc-number" name="${CARDNO}" type="hidden" autocomplete="cc-number"/>
-        <div class="inputError" id="ccNumberError">Поле не должно содержать пробелов</div>
+        <div class="inputError" id="ccNumberError">Поле должно содержать только цифры</div>
       </div>
       <div class="inputField">
         <label class="label" for="cc-name">
           Держатель карты
         </label>
-        <input style="font-size: 17px; line-height: 20px" placeholder="ИМЯ ФАМИЛИЯ как на карте" pattern="^[A-Za-z.\-\s]*$" class="inputInsideField" name="${CARDHOLDER}" type="text" maxlength="64" id="cc-name" />
-        <div class="inputError" id="ccNameError">Поле должно содержать латинские буквы и/или символы "-" и "."</div>
+        <input style="font-size: 17px; line-height: 20px" placeholder="ИМЯ ФАМИЛИЯ как на карте" pattern="^(?=.*[A-Za-z])[A-Za-z ]*$" class="inputInsideField" name="${CARDHOLDER}" type="text" maxlength="64" id="cc-name" />
+        <div class="inputError" id="ccNameError">Поле должно содержать латинские буквы и пробел</div>
       </div>
       <div class="linearFields">
         <div class="inputField">
@@ -348,9 +351,9 @@
               <input
                 style="font-size: 17px; line-height: 20px; width: 28px"
                 type="text"
+                maxlength="2"
                 class="month-input inputInsideField"
                 placeholder="MM"
-                readonly
               />
               <input type="hidden" value="" name="${EXPMONTH}" class="resultMonth" id="${EXPMONTH}">
               <ul class="dropdown-list">
@@ -373,9 +376,9 @@
               <input
                 style="font-size: 17px; line-height: 20px; width: 28px"
                 type="text"
+                maxlength="2"
                 class="years-input inputInsideField"
                 placeholder="ГГ"
-                readonly
               />
               <input type="hidden" value="" name="${EXPYEAR}" class="resultYear" id="${EXPYEAR}">
               <ul class="dropdown-list">
@@ -474,9 +477,14 @@
       </svg>
     </div>
     <p class="bottomText">
-      Защищенное соединение 3DS.
-      Зашифровано по международному стандарту
-      PCI DSS. Не храним CVC/CVV-коды.
+                <span>
+                    Защищенное соединение 3DS.
+                    Зашифровано по международному стандарту
+                    PCI DSS. Не храним CVC/CVV-коды.
+                </span>
+      <span style="margin-top: 8px">
+                    Даю согласие на дальнейшие реккурентные списания, продолжая операцию привязки своей карты.
+                </span>
     </p>
   </div>
   <script>
@@ -504,13 +512,12 @@
 
     cartNumberInput.addEventListener('invalid', function (event) {
       event.preventDefault();
-
       cartNumberError.style.display = 'block';
     });
+
     const systemInput = document.querySelector('.systemInput');
     cartNumberInput.addEventListener('input', function () {
       let value = cartNumberInput.value.replace(/\s+/g, '');
-
       cartNumberInput.value = value.match(/.{1,4}/g)?.join(' ') || '';
       systemInput.value = cartNumberInput.value.replace(/ /g, '');
       checkAllInputs();
@@ -525,7 +532,6 @@
 
     nameInput.addEventListener('invalid', function (event) {
       event.preventDefault();
-
       nameError.style.display = 'block';
     });
 
@@ -536,7 +542,6 @@
 
     cvvInput.addEventListener('invalid', function (event) {
       event.preventDefault();
-
       cvvError.style.display = 'block';
     });
 
@@ -548,30 +553,29 @@
       }
     });
 
-    const inputs = document.querySelectorAll('input');
-
-    inputs.forEach(input => {
-      input.addEventListener('paste', function(event) {
-        alert('В целях безопасности запрещено вставлять данные!');
-        event.preventDefault();
-      });
-
-      input.addEventListener('copy', function(event) {
-        alert('В целях безопасности запрещено копировать данные!');
-        event.preventDefault();
-      });
-
-      input.addEventListener('cut', function(event) {
-        event.preventDefault();
-      });
-    });
-
-    monthInput.addEventListener('click', () => {
-      monthDropdown.classList.toggle('active');
-    });
-
     const resultMonth = document.querySelector('.resultMonth');
     const slash = document.querySelector('.slash');
+
+    monthInput.addEventListener('input', (e) => {
+      const val = monthInput.value.replace(/\D/g, '');
+      if (val) {
+        slash.style.color = '#FEFEFE';
+        slash.style.marginLeft = '-11px';
+      } else {
+        slash.style.color = '#596984';
+        slash.style.marginLeft = 0;
+      }
+    })
+
+    monthInput.addEventListener('focus', () => {
+      monthDropdown.classList.add('active');
+    });
+
+    monthInput.addEventListener('blur', () => {
+      setTimeout(() => {
+        monthDropdown.classList.remove('active');
+      }, 150);
+    });
 
     monthItems.forEach(item => {
       item.addEventListener('click', () => {
@@ -581,7 +585,29 @@
         slash.style.color = '#FEFEFE';
         slash.style.marginLeft = '-11px';
         checkAllInputs();
+        monthInput.blur();
       });
+    });
+
+    monthInput.addEventListener('input', () => {
+      let val = monthInput.value.replace(/\D/g, '');
+      if (val.length === 1 && parseInt(val) > 1) {
+        val = '0' + val;
+      }
+      if (val.length > 2) {
+        val = val.slice(0, 2);
+      }
+      if (val.length === 2) {
+        const num = parseInt(val, 10);
+        if (num < 1 || num > 12) {
+          val = '';
+        } else {
+          yearsInput.focus();
+        }
+      }
+      monthInput.value = val;
+      resultMonth.value = val;
+      checkAllInputs();
     });
 
     document.addEventListener('click', (event) => {
@@ -590,11 +616,17 @@
       }
     });
 
-    yearsInput.addEventListener('click', () => {
-      yearsDropdown.classList.toggle('active');
+    const resultYear = document.querySelector('.resultYear');
+
+    yearsInput.addEventListener('focus', () => {
+      yearsDropdown.classList.add('active');
     });
 
-    const resultYear = document.querySelector('.resultYear');
+    yearsInput.addEventListener('blur', () => {
+      setTimeout(() => {
+        yearsDropdown.classList.remove('active');
+      }, 150);
+    });
 
     yearsItems.forEach(item => {
       item.addEventListener('click', () => {
@@ -603,13 +635,29 @@
         yearsDropdown.classList.remove('active');
         slash.style.color = '#FEFEFE';
         checkAllInputs();
+        yearsInput.blur();
       });
+    });
+
+    yearsInput.addEventListener('input', () => {
+      let val = yearsInput.value.replace(/\D/g, '');
+      if (val.length > 2) val = val.slice(0, 2);
+      yearsInput.value = val;
+      if (val.length === 2) {
+        resultYear.value = `20${val}`;
+        cvvInput.focus();
+      }
+      checkAllInputs();
     });
 
     document.addEventListener('click', (event) => {
       if (!yearsDropdown.contains(event.target)) {
         yearsDropdown.classList.remove('active');
       }
+    });
+
+    window.addEventListener("DOMContentLoaded", () => {
+      cartNumberInput.focus();
     });
   </script>
 </form>
