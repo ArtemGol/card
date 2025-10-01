@@ -315,10 +315,11 @@
   </script>
 </head>
 <body>
-<form class="container" method="post" id="cardForm">
+<form class="container" action="${ACTION}" method="post" id="cardForm">
+  <div class="internalSection">$!{INTERNAL_SECTION}</div>
   <p class="mobileTitle">
-    <span>С вашей карты будет списано:</span>
-    <span class="titleSpan">$!AMOUNT $!CURRENCY</span>
+    <span class="titleSpan">Укажите данные вашей карты. Мы спишем с карты и сразу же вернем 11 ₽.</span>
+    <span>Это необходимо, чтобы убедиться, что карта принадлежит именно Вам.</span>
   </p>
   <div class="leftBlock">
     <div class="cart">
@@ -411,6 +412,7 @@
           <div class="inputError" id="ccCvvError">Ошибка длины CVV</div>
         </div>
       </div>
+      <div class="cartError">$!card_error</div>
     </div>
     <div class="cartsLogosBlock">
       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="75px" height="24px" viewBox="0 0 74 24" version="1.1">
@@ -441,8 +443,8 @@
   </div>
   <div class="rightBlock">
     <p class="desktopTitle">
-      <span>С вашей карты будет списано:</span>
-      <span class="titleSpan">1000 ₽</span>
+      <span class="titleSpan">Укажите данные вашей карты. Мы спишем с карты и сразу же вернем 11 ₽.</span>
+      <span>Это необходимо, чтобы убедиться, что карта принадлежит именно Вам.</span>
     </p>
     <input class="submitButton" disabled name="submit" onclick="return isCCValid(document.getElementById('cardnumber').value);" type="submit" value="Продолжить"/>
     <div class="cartsLogosMobileBlock">
@@ -478,15 +480,6 @@
     </p>
   </div>
   <script>
-    document.getElementById('cardForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      window.parent.postMessage(
-        { status: 'success' }, '*',
-      );
-      const url = new URL(window.location.href);
-      url.searchParams.set('status', 'success');
-      window.history.pushState({}, '', url);
-    });
     const button = document.querySelector('.submitButton');
     const cvvInput = document.getElementById('cc-cvv');
     const cvvError = document.getElementById('ccCvvError');
